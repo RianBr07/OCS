@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Obra - OCS.EUC</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #1b3a57;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 { margin: 0; font-size: 1.6rem; }
+
+        nav {
+            background: #153049;
+            padding: 15px 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            width: 90%;
+        }
+
+        h2, h3 { color: #1b3a57; margin-top: 0; }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #1b3a57;
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 10px;
+            border: 1px solid #e6eef6;
+            background: #fdfdfd;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .alerta-erro {
+            background-color: #fbeaea;
+            color: #b00020;
+            border: 1px solid #f5c2c7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .is-invalid {
+            border: 2px solid #b00020 !important;
+            background-color: #fff8f8 !important;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e6eef6;
+        }
+
+        .acoes {
+            margin-top: 30px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border-radius: 18px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-primary { background: #1b3a57; color: white; }
+        .btn-primary:disabled { background: #cccccc; color: #666666; cursor: not-allowed; opacity: 0.7; }
+        .btn-secondary { background: #e6eef6; color: #1b3a57; }
+        .btn-danger { background: #fbeaea; color: #b00020; flex: none; padding: 8px 15px; }
+
+        .seletor {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid #e6eef6;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .hidden { display: none !important; }
+
+        .autora-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e6eef6;
+            background: #fbfcfe;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .item-lista-busca {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f4f8;
+            transition: background 0.2s;
+        }
+
+        .item-lista-busca:hover { background: #f0f4f8; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; gap: 0; }
+            .acoes { flex-direction: column; }
+        }
+
+        footer {
+            background: #1b3a57;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>OCS.EUC - Observatório da Comunidade Surda</h1>
+    <p style="color: #e0e0e0; margin-top: 8px; font-size: 0.9rem;">Módulo de Obras e Publicações</p>
+</header>
+
+<nav>
+    <a th:href="@{/}">Página Principal</a>
+</nav>
+
+<div class="container">
+    <h2>Editar Obra</h2>
+    <hr style="border: 0; border-top: 1px solid #e6eef6; margin-bottom: 25px;">
+
+    <form id="formObra" th:action="@{/obras/editar/{id}(id=${obra.id})}" method="post" th:object="${obra}">
+
+        <div th:if="${#fields.hasAnyErrors()}" class="alerta-erro">
+            <strong style="display: block; margin-bottom: 5px;">Atenção:</strong>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="section">
+            <h3>Informações Básicas</h3>
+
+            <label for="titulo">Título da Obra</label>
+            <input type="text" id="titulo" th:field="*{titulo}" placeholder="Ex: A Língua de Sinais na Educação" th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid' : ''" required>
+
+            <label for="resumo">Resumo / Sinopse</label>
+            <textarea id="resumo" th:field="*{resumo}" rows="6" th:classappend="${#fields.hasErrors('resumo')} ? 'is-invalid' : ''" placeholder="Breve descrição do conteúdo da obra..."></textarea>
+
+            <div class="form-grid">
+                <div>
+                    <label for="palavrasChave">Palavras-chave</label>
+                    <input type="text" id="palavrasChave" th:field="*{palavrasChave}" placeholder="Libras, Educação, Inclusão">
+                </div>
+                <div>
+                    <label for="anoPublicacao">Ano de Publicação</label>
+                    <input type="number" id="anoPublicacao" th:field="*{anoPublicacao}" th:attr="max=${#calendars.format(#calendars.createNow(), 'yyyy')}" placeholder="Ex: 2024">
+                </div>
+            </div>
+
+            <label for="urlArquivo">URL do Arquivo / Link Permanente</label>
+            <input type="url" id="urlArquivo" th:field="*{urlArquivo}" placeholder="https://exemplo.com/obra.pdf" th:classappend="${#fields.hasErrors('urlArquivo')} ? 'is-invalid' : ''">
+
+            <label for="categoria">Categoria</label>
+            <select id="categoria" th:field="*{categoria.id}" required>
+                <option value="">Selecione uma categoria</option>
+                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"></option>
+            </select>
+        </div>
+
+        <div class="section">
+            <h3>Gestão de Autoria</h3>
+            <div id="listaAutoras" class="autoras-selecionadas" style="margin-top: 10px;"></div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" onclick="abrirSeletor()">+ Adicionar Autora</button>
+                <a th:href="@{/autoras/cadastrar}" class="btn btn-secondary" style="flex: none;">Nova Autora</a>
+            </div>
+
+            <div id="seletorAutoras" class="seletor hidden">
+                <input type="text" id="pesquisaAutora" placeholder="Pesquisar autora cadastrada..." onkeyup="filtrarAutoras()">
+                <div class="lista-pesquisa" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                    <div th:each="a : ${autoras}" class="item-lista-busca"
+                         th:data-id="${a.id}" th:data-nome="${a.nome}" th:text="${a.nome}"
+                         onclick="selecionarAutora(this)"></div>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="fecharSeletor()" style="margin-top:10px">Fechar</button>
+            </div>
+            <div id="autorasHidden"></div>
+        </div>
+
+        <div id="js-alerta-limite" class="alerta-erro hidden" style="margin-bottom: 10px;">
+            <strong>Ops! Limite excedido:</strong>
+            <span id="js-msg-erro"></span>
+        </div>
+
+        <div class="acoes">
+            <button type="submit" id="btnSalvar" class="btn btn-primary">Salvar Alterações</button>
+            <a th:href="@{/obras}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<footer>
+    <p>© 2026 Observatório da Comunidade Surda — IFBA Euclides da Cunha</p>
+</footer>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script th:inline="javascript">
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+
+
+    const MAX_CHARS = 255;
+    const btnSalvar = document.getElementById('btnSalvar');
+    const alertaLimite = document.getElementById('js-alerta-limite');
+    const msgErro = document.getElementById('js-msg-erro');
+
+    const camposValidar = {
+        'titulo': 'Título',
+        'resumo': 'Resumo',
+        'palavrasChave': 'Palavras-chave',
+        'urlArquivo': 'URL do Arquivo'
+    };
+
+    function verificarTodosLimites() {
+        let erros = [];
+        for (let id in camposValidar) {
+            const campo = document.getElementById(id);
+            if (campo && campo.value.length > MAX_CHARS) {
+                erros.push(camposValidar[id]);
+            }
+        }
+
+        if (erros.length > 0) {
+            alertaLimite.classList.remove('hidden');
+            msgErro.textContent = "O(s) campo(s) " + erros.join(", ") + " ultrapassaram o limite de " + MAX_CHARS + " caracteres.";
+            btnSalvar.disabled = true;
+        } else {
+            alertaLimite.classList.add('hidden');
+            btnSalvar.disabled = false;
+        }
+    }
+
+    Object.keys(camposValidar).forEach(id => {
+        const field = document.getElementById(id);
+        if (!field) return;
+
+        const counter = document.createElement('div');
+        counter.style = "text-align: right; font-size: 0.75rem; color: #888; margin-bottom: 10px;";
+        field.after(counter);
+
+        field.addEventListener('input', () => {
+            const current = field.value.length;
+            counter.textContent = `${current} / ${MAX_CHARS} caracteres`;
+
+            if (current > MAX_CHARS) {
+                counter.style.color = "#b00020";
+                counter.style.fontWeight = "bold";
+                field.classList.add('is-invalid');
+            } else {
+                counter.style.color = "#888";
+                counter.style.fontWeight = "normal";
+                field.classList.remove('is-invalid');
+            }
+            verificarTodosLimites();
+        });
+        field.dispatchEvent(new Event('input'));
+    });
+
+
+    const autorasAdicionadas = new Set();
+    function abrirSeletor() { document.getElementById("seletorAutoras").classList.remove("hidden"); }
+    function fecharSeletor() { document.getElementById("seletorAutoras").classList.add("hidden"); }
+
+    function filtrarAutoras() {
+        const busca = document.getElementById("pesquisaAutora").value.toLowerCase();
+        document.querySelectorAll(".item-lista-busca").forEach(item => {
+            item.style.display = item.textContent.toLowerCase().includes(busca) ? "block" : "none";
+        });
+    }
+
+    function adicionarNaLista(id, nome) {
+        if (!id || autorasAdicionadas.has(id.toString())) return;
+        autorasAdicionadas.add(id.toString());
+
+        const div = document.createElement("div");
+        div.className = "autora-item";
+        div.id = "autora-" + id;
+        div.innerHTML = `<span>${nome}</span><button type="button" class="btn btn-danger" onclick="removerAutora('${id}')">Remover</button>`;
+        document.getElementById("listaAutoras").appendChild(div);
+
+        const input = document.createElement("input");
+        input.type = "hidden"; input.name = "autorasIds"; input.value = id; input.id = "hidden-" + id;
+        document.getElementById("autorasHidden").appendChild(input);
+    }
+
+    function selecionarAutora(el) {
+        adicionarNaLista(el.dataset.id, el.dataset.nome);
+        fecharSeletor();
+    }
+
+    function removerAutora(id) {
+        autorasAdicionadas.delete(id.toString());
+        document.getElementById("autora-" + id)?.remove();
+        document.getElementById("hidden-" + id)?.remove();
+    }
+
+
+    /*[# th:each="a : ${obra.autoras}"]*/
+        adicionarNaLista("[[${a.id}]]", "[[${a.nome}]]");
+    /*[/]*/
+</script>
+
+
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+</body>
+</html>

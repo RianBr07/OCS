@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legislações</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            color: #333;
+        }
+
+        header {
+            background: #1b3a57;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+         nav {
+            background: #153049;
+            padding: 15px 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1b3a57;
+            margin-top: 0;
+        }
+
+        .legislacoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .legislacao-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .legislacao-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(27,58,87,0.18);
+        }
+
+        .legislacao-titulo {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1b3a57;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .legislacao-descricao {
+            font-size: 0.9rem;
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .legislacao-meta {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        .legislacao-acoes {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .botoes-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .botoes-admin {
+            display: flex;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-ver, .btn-editar, .btn-excluir {
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-ver {
+            background: #1b3a57;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-editar {
+            background: #e6eef6;
+            color: #1b3a57;
+            flex: 1;
+        }
+
+        .btn-excluir {
+            background: #fbeaea;
+            color: #b00020;
+            flex: 1;
+        }
+
+        .intro-secao {
+            margin-bottom: 26px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #e6eef6;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        strong {
+            color: #1b3a57;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+
+            .legislacoes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-ver {
+                width: 100%;
+            }
+        }
+           footer {
+            background: #1b3a57;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>OCS.EUC - Observatório da Comunidade Surda</h1>
+</header>
+
+<nav>
+    <a th:href="@{/}">Página Principal</a>
+</nav>
+
+<div class="container">
+    <div class="intro-secao">
+        <h2>Legislações de Referência</h2>
+        <p>
+            Esta seção reúne o conjunto de <strong>leis, decretos e normativas</strong> que fundamentam
+            as análises, pesquisas e produções do <strong>Observatório da Comunidade Surda</strong>.
+        </p>
+    </div>
+
+    <a sec:authorize="hasRole('ADMIN')"
+       th:href="@{/legislacoes/cadastrar}"
+       class="btn-ver"
+       style="margin-bottom:20px; display:inline-block; width: auto; flex: none;">
+        Cadastrar Legislação
+    </a>
+
+    <div class="legislacoes-grid">
+        <div class="legislacao-card" th:each="l : ${legislacoes}">
+            <div class="legislacao-titulo" th:text="${l.numero}"></div>
+
+            <div class="legislacao-meta">
+                <strong>Data de publicação:</strong>
+                <span th:text="${#temporals.format(l.data, 'dd/MM/yyyy')}"></span>
+            </div>
+
+            <p class="legislacao-descricao" th:text="${l.descricao}"></p>
+
+            <div class="legislacao-acoes">
+                <div class="botoes-links">
+                    <a th:if="${l.urlArquivo != null}"
+                       th:href="${l.urlArquivo}"
+                       target="_blank"
+                       class="btn-ver">
+                        Consultar documento
+                    </a>
+                </div>
+
+                <div sec:authorize="hasRole('ADMIN')" class="botoes-admin">
+                    <a th:href="@{/legislacoes/editar/{id}(id=${l.id})}" class="btn-editar">Editar</a>
+
+                    <form th:action="@{/legislacoes/excluir/{id}(id=${l.id})}" method="post" style="flex:1; display:flex;">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" class="btn-excluir" onclick="return confirm('Deseja excluir?')">Excluir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer>
+    <p>© 2026 Observatório da Comunidade Surda — IFBA Euclides da Cunha</p>
+</footer>
+
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+</body>
+</html>
